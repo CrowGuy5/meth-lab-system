@@ -10,7 +10,7 @@ local BuradPlants = {}
 local isPickingUp, isProcessing = false, false
 
 
-Citizen.CreateThread(function()
+CreateThread(function()
  ESX.ShowNotification("Project by:Vulegg#5757")   
 end)
 
@@ -27,16 +27,16 @@ local function AddPolyZone(name, points, options, targetoptions)
 	return Zones[name]
 end
 
-Citizen.CreateThread(function()
+CreateThread(function()
 	while true do
 		Citizen.Wait(10)
 		local coords = GetEntityCoords(PlayerPedId())
-
-		if GetDistanceBetweenCoords(coords, Config.Search.methsearch.coords, true) < 50 then
+	 	local dis = #(coords - vector3(Config.Search.methsearch.coords))
+		if distanca < 50 then
 			SpawnBuradPlants()
-			Citizen.Wait(500)
+			Wait(500)
 		else
-			Citizen.Wait(500)
+			Wait(500)
 		end
 	end
 end)
@@ -51,7 +51,7 @@ end)
 
 function SpawnBuradPlants()
 	while spawnedBurad < 15 do
-		Citizen.Wait(0)
+		Wait(0)
 		local bureCoords = GenerateCocaLeafCoords()
 
 		ESX.Game.SpawnLocalObject('prop_barrel_01a', bureCoords, function(obj)
@@ -69,12 +69,13 @@ function ValidateCocaLeafCoord(plantCoord)
 		local validate = true
 
 		for k, v in pairs(BuradPlants) do
-			if GetDistanceBetweenCoords(plantCoord, GetEntityCoords(v), true) < 5 then
+			local dis =  #(plantCoord - GetEntityCoords(v))
+			if dis < 5 then
 				validate = false
 			end
 		end
-
-		if GetDistanceBetweenCoords(plantCoord, Config.Search.methsearch.coords, false) > 50 then
+		local distance = #(plantCoord - Config.Search.methsearch.coords)
+		if distance > 50 then
 			validate = false
 		end
 
@@ -86,14 +87,14 @@ end
 
 function GenerateCocaLeafCoords()
 	while true do
-		Citizen.Wait(1)
+		Wait(1)
 
 		local bureCoordX, bureCoordY
 
 		math.randomseed(GetGameTimer())
 		local modX = math.random(-20, 20)
 
-		Citizen.Wait(100)
+		Wait(100)
 
 		math.randomseed(GetGameTimer())
 		local modY = math.random(-20, 20)
@@ -138,7 +139,7 @@ local function GetBuradLabel(name)
         if burad.zone.name == name then return burad.label end
     end
 end 
-Citizen.CreateThread(function()
+CreateThread(function()
     for k, v in pairs(Config.Barrel) do
 
         burad[k] = BoxZone:Create(
@@ -169,7 +170,7 @@ function IsInsideZone(type, entity)
 end
 
 
-Citizen.CreateThread(function()
+CreateThread(function()
 	exports.qtarget:AddTargetModel({-1738103333}, {
 		options = {
 			{
@@ -197,9 +198,10 @@ RNE("meth:search", function()
 	local playerPed = PlayerPedId()
 	local coords = GetEntityCoords(playerPed)
 	local nearbyObject, nearbyID
-
+	
 	for i=1, #BuradPlants, 1 do
-		if GetDistanceBetweenCoords(coords, GetEntityCoords(BuradPlants[i]), false) < 1 then
+		local distanc = #(coords - GetEntityCoords(BuradPlants[i])
+		if distanc < 1 then
 			nearbyObject, nearbyID = BuradPlants[i], i
 		end
 	end
@@ -207,9 +209,9 @@ RNE("meth:search", function()
 	
 		TaskStartScenarioInPlace(playerPed, 'PROP_HUMAN_BUM_BIN', 0, false)
 
-		Citizen.Wait(2000)
+		Wait(2000)
 		ClearPedTasks(playerPed)
-		Citizen.Wait(1500)
+		Wait(1500)
 
 		ESX.Game.DeleteObject(nearbyObject)
 
@@ -226,24 +228,24 @@ end)
 
 RNE("methcook", function()
 	ESX.TriggerServerCallback('meth:system',function(check)
-	if check then
-  exports.ox_inventory:Progress({
-		duration = 30000,
-		label = 'Cooking meth...',
-		useWhileDead = false,
-		canCancel = true,
-		disable = {
-			move = true,
-			car = true,
-			combat = true,
-			mouse = true
-		},
-		anim = { dict = 'anim@amb@clubhouse@tutorial@bkr_tut_ig3@', clip = 'machinic_loop_mechandplayer' },
-	}) 
-else
-	ESX.ShowNotification("Something missing!!!")
-end
-end) 
+		if check then
+		  exports.ox_inventory:Progress({
+				duration = 30000,
+				label = 'Cooking meth...',
+				useWhileDead = false,
+				canCancel = true,
+				disable = {
+					move = true,
+					car = true,
+					combat = true,
+					mouse = true
+				},
+				anim = { dict = 'anim@amb@clubhouse@tutorial@bkr_tut_ig3@', clip = 'machinic_loop_mechandplayer' },
+			}) 
+		else
+			ESX.ShowNotification("Something missing!!!")
+		end
+	end) 
 end)
 
 
@@ -266,11 +268,11 @@ RNE("abillity", function()
         prop = { model = 'prop_meth_bag_01', pos = { x = 0.020000000000004, y = 0.020000000000004, y = -0.020000000000004}, rot = { x = 0.0, y = 0.0, y = 0.0} },
     })
     Wait(500)
-SetPedMotionBlur(PlayerPedId(), true)
-AddArmourToPed(PlayerPedId(), 50)
-SetEntityHealth(PlayerPedId(), GetEntityHealth(PlayerPedId()) + 100)
-Wait(500)
-ESX.ShowNotification("You 'r consumed meth!")
+	SetPedMotionBlur(PlayerPedId(), true)
+	AddArmourToPed(PlayerPedId(), 50)
+	SetEntityHealth(PlayerPedId(), GetEntityHealth(PlayerPedId()) + 100)
+	Wait(500)
+	ESX.ShowNotification("You 'r consumed meth!")
 end)
 
 
@@ -396,7 +398,7 @@ CreateThread(function()
   end 
 
 
-Citizen.CreateThread(function()
+CreateThread(function()
     blip = AddBlipForCoord(vector3(3559.503, 3673.973, 29.367))
     SetBlipSprite(blip, 140)
     SetBlipDisplay(blip, 4)
@@ -408,7 +410,7 @@ Citizen.CreateThread(function()
     EndTextCommandSetBlipName(blip)
 end)   
 
-Citizen.CreateThread(function()
+CreateThread(function()
     blip = AddBlipForCoord(vector3(1173.183, -2939.41, 5.9021))
     SetBlipSprite(blip, 436)
     SetBlipDisplay(blip, 4)
@@ -420,7 +422,7 @@ Citizen.CreateThread(function()
     EndTextCommandSetBlipName(blip)
 end)   
 
-Citizen.CreateThread(function()
+CreateThread(function()
     blip = AddBlipForCoord(vector3(1391.846, 3605.776, 38.941))
     SetBlipSprite(blip, 267)
     SetBlipDisplay(blip, 4)
